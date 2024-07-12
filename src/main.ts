@@ -98,10 +98,13 @@ async function stop() {
 
 (async function () {
   try {
+    core.info("Init action");
+    core.info(JSON.stringify(config));
     if (config.action === "stop") {
       core.info("Stopping instance");
       stop();
     } else {
+      core.info("Starting instance");
       start();
     }
   } catch (error) {
