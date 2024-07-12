@@ -95,6 +95,6 @@ export class ActionConfig implements ConfigInterface {
 
     // Custom params
     this.manualStop = core.getBooleanInput("manual_stop");
-    this.action = core.getInput("manual_stop");
+    this.action = core.getInput("action");
   }
 }
