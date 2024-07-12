@@ -26,6 +26,9 @@ export interface ConfigInterface {
   ec2SecurityGroupId: string;
   ec2SubnetId: string;
   ec2SpotInstanceStrategy: string;
+
+  manualStop: boolean;
+  action: string;
 }
 
 export class ActionConfig implements ConfigInterface {
@@ -53,6 +56,9 @@ export class ActionConfig implements ConfigInterface {
   ec2SecurityGroupId: string;
   ec2SubnetId: string;
   ec2SpotInstanceStrategy: string;
+
+  manualStop: boolean;
+  action: string;
 
   constructor() {
     // AWS account and credentials params
@@ -86,5 +92,9 @@ export class ActionConfig implements ConfigInterface {
     this.ec2SpotInstanceStrategy = core
       .getInput("ec2_spot_instance_strategy")
       .toLowerCase();
+
+    // Custom params
+    this.manualStop = core.getBooleanInput("manual_stop");
+    this.action = core.getInput("manual_stop");
   }
 }

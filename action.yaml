@@ -1,66 +1,66 @@
-name: 'Deploy self-hosted runners to EC2 (Spot/On-Demand)'
-description: 'Automatically deploy self-hosted runners to AWS EC2 using Spot/On-Demand instances and optimize for best performance/cost.'
+name: "Deploy self-hosted runners to EC2 (Spot/On-Demand)"
+description: "Automatically deploy self-hosted runners to AWS EC2 using Spot/On-Demand instances and optimize for best performance/cost."
 branding:
-  icon: 'server'
-  color: 'orange'
+  icon: "server"
+  color: "orange"
 inputs:
   aws_access_key_id:
-    description: 'AWS access key ID'
+    description: "AWS access key ID"
     required: true
   aws_secret_access_key:
-    description: 'AWS secret access key'
+    description: "AWS secret access key"
     required: true
   aws_session_token:
-    description: 'AWS session token'
+    description: "AWS session token"
     required: false
   aws_region:
-    description: 'AWS Region'
+    description: "AWS Region"
     required: true
   aws_iam_role_arn:
-    description: 'ARN of IAM role to assume'
+    description: "ARN of IAM role to assume"
     required: false
-    default: ''
+    default: ""
   github_token:
-    description: 'GitHub token'
+    description: "GitHub token"
     required: true
   github_action_runner_version:
-    description: 'GitHub action runner version'
+    description: "GitHub action runner version"
     required: false
   # Custom label support still needs more work. For now we default to job ID
   #github_action_runner_label:
   #  description: 'GitHub action runner label'
   #  required: false
   ec2_instance_type:
-    description: 'Ec2 instance type'
+    description: "Ec2 instance type"
     required: true
   ec2_ami_id:
-    description: 'Ec2 ami ID'
+    description: "Ec2 ami ID"
     required: true
   ec2_root_disk_size_gb:
-    description: 'Ec2 root disk size (defaults to AMI setting)'
+    description: "Ec2 root disk size (defaults to AMI setting)"
     required: false
     default: "0"
   ec2_root_disk_ebs_class:
-    description: 'Ec2 root disk storage class (defaults to gp2)'
+    description: "Ec2 root disk storage class (defaults to gp2)"
     required: false
     default: "gp2"
   ec2_instance_iam_role:
-    description: 'IAM role for to associate with ec2 instance'
+    description: "IAM role for to associate with ec2 instance"
     required: false
-    default: ''
+    default: ""
   ec2_instance_tags:
-    description: 'List of extra aws resource tags for ec2 instance'
+    description: "List of extra aws resource tags for ec2 instance"
     required: false
-    default: '{}'
+    default: "{}"
   ec2_instance_ttl:
-    description: 'Maximum duration an EC2 instance is allowed to live in minute'
+    description: "Maximum duration an EC2 instance is allowed to live in minute"
     required: false
-    default: '60'
+    default: "60"
   ec2_security_group_id:
-    description: 'Security group id'
+    description: "Security group id"
     required: true
   ec2_subnet_id:
-    description: 'Subnet id'
+    description: "Subnet id"
     required: true
   ec2_spot_instance_strategy:
     description: >
@@ -68,10 +68,18 @@ inputs:
         None -> (default) no spot instances, use on-demand
         SpotOnly -> Strictly spot instances only
         BestEffort -> Use spot instances whenever they are cheaper than on-demand
-        MaxPerformance -> Use the largest spot instance in same class for <= the on-demand price 
+        MaxPerformance -> Use the largest spot instance in same class for <= the on-demand price
 
     required: false
     default: "none"
+  manual_stop:
+    description: "Manual stop enabled"
+    required: false
+    default: "false"
+  action:
+    description: "Action to perform, start / stop"
+    required: false
+    default: "start"
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
