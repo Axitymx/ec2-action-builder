@@ -98,7 +98,12 @@ async function stop() {
 
 (async function () {
   try {
-    config.action === "stop" ? stop() : start();
+    if (config.action === "stop") {
+      core.info("Stopping instance");
+      stop();
+    } else {
+      start();
+    }
   } catch (error) {
     stop();
     assertIsError(error);
