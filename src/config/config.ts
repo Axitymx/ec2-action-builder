@@ -29,6 +29,7 @@ export interface ConfigInterface {
 
   manualStop: boolean;
   action: string;
+  preRunnerScript: string;
 }
 
 export class ActionConfig implements ConfigInterface {
@@ -59,11 +60,13 @@ export class ActionConfig implements ConfigInterface {
 
   manualStop: boolean;
   action: string;
+  preRunnerScript: string;
 
   constructor() {
     // Custom params
     this.manualStop = core.getBooleanInput("manual_stop");
     this.action = core.getInput("action");
+    this.preRunnerScript = core.getInput("pre_runner_script");
 
     // AWS account and credentials params
     this.awsAccessKeyId = core.getInput("aws_access_key_id");

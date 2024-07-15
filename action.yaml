@@ -79,6 +79,10 @@ inputs:
     description: "Action to perform, start / stop"
     required: false
     default: "start"
+  pre_runner_script:
+    description: >-
+      Specifies bash commands to run before the runner starts. It's useful for installing dependencies with apt-get, yum, dnf, etc.
+    required: false
 runs:
   using: "node20"
   main: "dist/index.js"
