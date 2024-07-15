@@ -418,7 +418,9 @@ export class Ec2Instance {
         MaxResults: 99,
       };
 
-      const reservation = (await client.instance).Reservations?.at(0);
+      const reservation = (
+        await client.describeInstances(params)
+      ).Reservations?.at(0);
       return reservation?.Instances?.at(0);
     } catch (error) {
       core.error(`Failed to lookup status for instance for tags ${filters}`);
