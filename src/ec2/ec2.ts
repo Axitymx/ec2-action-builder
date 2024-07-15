@@ -73,7 +73,13 @@ export class Ec2Instance {
     }
 
     return this.config.action === "stop"
-      ? customTags
+      ? [
+          {
+            Key: "Name",
+            Value: `${this.config.githubRepo}-${this.config.githubJobId}`,
+          },
+          ...customTags,
+        ]
       : [
           {
             Key: "Name",
