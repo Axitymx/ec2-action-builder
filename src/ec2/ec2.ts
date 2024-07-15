@@ -7,13 +7,13 @@ import {
   DescribeSpotPriceHistoryCommandInput,
   _InstanceType,
   RunInstancesCommandInput,
-  DescribeImagesCommand
+  DescribeImagesCommand,
 } from "@aws-sdk/client-ec2";
 import { STS } from "@aws-sdk/client-sts";
 import * as core from "@actions/core";
 import { UserData } from "./userdata";
 import { Ec2Pricing } from "./pricing";
-import {VolumeType} from "@aws-sdk/client-ec2/dist-types/models/models_1";
+import { VolumeType } from "@aws-sdk/client-ec2/dist-types/models/models_1";
 
 interface Tag {
   Key: string;
@@ -67,42 +67,44 @@ export class Ec2Instance {
 
   getTags() {
     // Parse custom tags
-    let customTags = []
+    let customTags = [];
     if (this.config.ec2InstanceTags) {
       customTags = JSON.parse(this.config.ec2InstanceTags);
     }
 
-    return [
-      {
-        Key: "Name",
-        Value: `${this.config.githubRepo}-${this.config.githubJobId}`,
-      },
-      {
-        Key: "github_ref",
-        Value: this.config.githubRef,
-      },
-      {
-        Key: "owner",
-        Value: "EC2_ACTION_BUILDER",
-      },
-      {
-        Key: "github_job_id",
-        Value: this.config.githubJobId,
-      },
-      {
-        Key: "github_repo",
-        Value: this.config.githubRepo,
-      },
-      ...customTags
-    ];
+    return this.config.action === "stop"
+      ? customTags
+      : [
+          {
+            Key: "Name",
+            Value: `${this.config.githubRepo}-${this.config.githubJobId}`,
+          },
+          {
+            Key: "github_ref",
+            Value: this.config.githubRef,
+          },
+          {
+            Key: "owner",
+            Value: "EC2_ACTION_BUILDER",
+          },
+          {
+            Key: "github_job_id",
+            Value: this.config.githubJobId,
+          },
+          {
+            Key: "github_repo",
+            Value: this.config.githubRepo,
+          },
+          ...customTags,
+        ];
   }
 
   async getCrossAccountCredentials(): Promise<AwsCredentialIdentity> {
     // if we have a valid session token then we just pass the credentials through
     // possibly this is due to an OIDC/OAuth flow
     if (
-        typeof this.credentials.sessionToken == "string" &&
-        this.credentials.sessionToken != ""
+      typeof this.credentials.sessionToken == "string" &&
+      this.credentials.sessionToken != ""
     ) {
       return Object.assign(this.credentials);
     }
@@ -119,7 +121,11 @@ export class Ec2Instance {
     };
     try {
       const data = await stsClient.assumeRole(params);
-      if (data.Credentials && data.Credentials.AccessKeyId && data.Credentials.SecretAccessKey)
+      if (
+        data.Credentials &&
+        data.Credentials.AccessKeyId &&
+        data.Credentials.SecretAccessKey
+      )
         return {
           accessKeyId: data.Credentials.AccessKeyId,
           secretAccessKey: data.Credentials.SecretAccessKey,
@@ -149,10 +155,9 @@ export class Ec2Instance {
     const client = await this.getEc2Client();
     try {
       const subnets = (
-        await client
-          .describeSubnets({
-            SubnetIds: [this.config.ec2SubnetId],
-          })
+        await client.describeSubnets({
+          SubnetIds: [this.config.ec2SubnetId],
+        })
       ).Subnets;
       return subnets?.at(0)?.AvailabilityZone;
     } catch (error) {
@@ -167,7 +172,9 @@ export class Ec2Instance {
       AvailabilityZone: await this.getSubnetAz(),
       //EndTime: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789,
       InstanceTypes: [
-        (instanceType ? instanceType : this.config.ec2InstanceType) as _InstanceType,
+        (instanceType
+          ? instanceType
+          : this.config.ec2InstanceType) as _InstanceType,
       ],
       ProductDescriptions: [
         "Linux/UNIX",
@@ -179,9 +186,8 @@ export class Ec2Instance {
     };
 
     try {
-      const spotPriceHistory = (
-        await client.describeSpotPriceHistory(params)
-      ).SpotPriceHistory;
+      const spotPriceHistory = (await client.describeSpotPriceHistory(params))
+        .SpotPriceHistory;
 
       return Number(spotPriceHistory?.at(0)?.SpotPrice);
     } catch (error) {
@@ -298,14 +304,15 @@ export class Ec2Instance {
         {
           ResourceType: "volume",
           Tags: this.tags,
-        }
+        },
       ],
       UserData: await userData.getUserData(),
-      BlockDeviceMappings: undefined
+      BlockDeviceMappings: undefined,
     };
 
     // Add EBS volume if one was requested
-    const sizeGB = parseInt(this.config.ec2InstanceRootDiskSizeGB.trim(), 10) || 0;
+    const sizeGB =
+      parseInt(this.config.ec2InstanceRootDiskSizeGB.trim(), 10) || 0;
     if (sizeGB > 0) {
       const deviceInfo = await this.getRootDeviceInfo(this.config.ec2AmiId);
 
@@ -319,10 +326,10 @@ export class Ec2Instance {
           Ebs: {
             VolumeSize: Number(this.config.ec2InstanceRootDiskSizeGB),
             VolumeType: this.config.ec2InstanceRootDiskEbsClass as VolumeType,
-            DeleteOnTermination: true  // Ensure volume is deleted on termination
-          }
-        }
-      ]
+            DeleteOnTermination: true, // Ensure volume is deleted on termination
+          },
+        },
+      ];
     }
 
     switch (ec2SpotInstanceStrategy.toLowerCase()) {
@@ -358,9 +365,9 @@ export class Ec2Instance {
         break;
       }
       case "maxperformance": {
-        params.InstanceType = await this.bestSpotSizeForOnDemandPrice(
+        params.InstanceType = (await this.bestSpotSizeForOnDemandPrice(
           this.config.ec2InstanceType
-        ) as _InstanceType;
+        )) as _InstanceType;
         params.InstanceMarketOptions = {
           MarketType: "spot",
           SpotOptions: {
@@ -387,8 +394,7 @@ export class Ec2Instance {
     const client = await this.getEc2Client();
     try {
       const instanceList = (
-        await client
-          .describeInstanceStatus({ InstanceIds: [instanceId] })
+        await client.describeInstanceStatus({ InstanceIds: [instanceId] })
       ).InstanceStatuses;
       return instanceList?.at(0);
     } catch (error) {
@@ -412,9 +418,7 @@ export class Ec2Instance {
         MaxResults: 99,
       };
 
-      const reservation = (
-        await client.describeInstances(params)
-      ).Reservations?.at(0);
+      const reservation = (await client.instance).Reservations?.at(0);
       return reservation?.Instances?.at(0);
     } catch (error) {
       core.error(`Failed to lookup status for instance for tags ${filters}`);
@@ -425,10 +429,13 @@ export class Ec2Instance {
   async waitForInstanceRunningStatus(instanceId: string) {
     const client = await this.getEc2Client();
     try {
-      await waitUntilInstanceRunning({
-        client,
-        maxWaitTime: 200,
-      }, { InstanceIds: [instanceId] });
+      await waitUntilInstanceRunning(
+        {
+          client,
+          maxWaitTime: 200,
+        },
+        { InstanceIds: [instanceId] }
+      );
       core.info(`AWS EC2 instance ${instanceId} is up and running`);
       return;
     } catch (error) {
@@ -440,7 +447,7 @@ export class Ec2Instance {
   async terminateInstances(instanceId: string) {
     const client = await this.getEc2Client();
     try {
-      await client.terminateInstances({InstanceIds: [instanceId]});
+      await client.terminateInstances({ InstanceIds: [instanceId] });
       core.info(`AWS EC2 instance ${instanceId} is terminated`);
       return;
     } catch (error) {
@@ -449,11 +456,13 @@ export class Ec2Instance {
     }
   }
 
-  async getRootDeviceInfo(amiId: string): Promise<{ deviceName: string, isEbs: boolean } | undefined> {
+  async getRootDeviceInfo(
+    amiId: string
+  ): Promise<{ deviceName: string; isEbs: boolean } | undefined> {
     const client = await this.getEc2Client();
 
     try {
-      const command = new DescribeImagesCommand({ImageIds: [amiId.trim()]});
+      const command = new DescribeImagesCommand({ ImageIds: [amiId.trim()] });
       const response = await client.send(command);
 
       if (response.Images && response.Images.length > 0) {
@@ -461,10 +470,10 @@ export class Ec2Instance {
         if (image.RootDeviceName && image.RootDeviceType) {
           return {
             deviceName: image.RootDeviceName,
-            isEbs: image.RootDeviceType.includes("ebs")
-          }
+            isEbs: image.RootDeviceType.includes("ebs"),
+          };
         }
-        return {deviceName: "", isEbs: false}
+        return { deviceName: "", isEbs: false };
       }
     } catch (error) {
       core.error("Error querying AMI information:", error);
