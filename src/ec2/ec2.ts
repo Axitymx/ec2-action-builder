@@ -408,7 +408,7 @@ export class Ec2Instance {
     const filters: FilterInterface[] = [];
     for (const tag of this.tags) {
       filters.push({
-        Name: tag.Key,
+        Name: `tag:${tag.Key}`,
         Values: [tag.Value],
       });
     }
