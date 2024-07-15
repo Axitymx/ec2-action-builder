@@ -418,6 +418,7 @@ export class Ec2Instance {
         Values: [tag.Value],
       });
     }
+    core.info(`FILTERS: ${JSON.stringify(filters)}`);
     try {
       var params = {
         Filters: filters,
