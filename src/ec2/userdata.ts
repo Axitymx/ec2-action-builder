@@ -23,17 +23,13 @@ export class UserData {
 
     const cmds = [
       "#!/bin/bash",
-      this.config.preRunnerScript
-        ? `echo "${this.config.preRunnerScript}" > $CURRENT_PATH/pre-runner-script.sh`
-        : "",
-      this.config.preRunnerScript
-        ? "chmod +x $CURRENT_PATH/pre-runner-script.sh"
-        : "",
-      this.config.preRunnerScript
-        ? `sh $CURRENT_PATH/pre-runner-script.sh`
-        : "",
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
+      this.config.preRunnerScript
+        ? `echo "${this.config.preRunnerScript}" > $CURRENT_PATH/pre_runner_script.sh
+          chmod +x $CURRENT_PATH/pre_runner_script.sh
+          sh $CURRENT_PATH/pre_runner_script.sh`
+        : "",
       `echo "shutdown -P +1" > $CURRENT_PATH/shutdown_script.sh`,
       "chmod +x $CURRENT_PATH/shutdown_script.sh",
       this.config.manualStop
