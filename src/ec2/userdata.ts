@@ -1,6 +1,7 @@
 import { ConfigInterface } from "../config/config";
 import * as github from "@actions/github";
 import { GithubClient } from "../github/github";
+import * as core from "@actions/core";
 
 export class UserData {
   config: ConfigInterface;
@@ -16,12 +17,18 @@ export class UserData {
     if (!this.config.githubActionRunnerLabel)
       throw Error("failed to object job ID for label");
 
+    if (this.config.preRunnerScript) {
+      core.info("Running Pre-runner Script");
+    }
+
     const cmds = [
       "#!/bin/bash",
       this.config.preRunnerScript
         ? `echo "${this.config.preRunnerScript}" > pre-runner-script.sh`
         : "",
-      this.config.preRunnerScript ? `source pre-runner-script.sh` : "",
+      this.config.preRunnerScript
+        ? `source $CURRENT_PATH/pre-runner-script.sh`
+        : "",
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
       `echo "shutdown -P +1" > $CURRENT_PATH/shutdown_script.sh`,
