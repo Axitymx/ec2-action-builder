@@ -30,7 +30,7 @@ export class UserData {
         ? "chmod +x $CURRENT_PATH/pre-runner-script.sh"
         : "",
       this.config.preRunnerScript
-        ? `./$CURRENT_PATH/pre-runner-script.sh`
+        ? `sh $CURRENT_PATH/pre-runner-script.sh`
         : "",
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
