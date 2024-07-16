@@ -24,7 +24,10 @@ export class UserData {
     const cmds = [
       "#!/bin/bash",
       this.config.preRunnerScript
-        ? `echo "${this.config.preRunnerScript}" > pre-runner-script.sh`
+        ? `echo "${this.config.preRunnerScript}" > $CURRENT_PATH/pre-runner-script.sh`
+        : "",
+      this.config.preRunnerScript
+        ? "chmod +x $CURRENT_PATH/pre-runner-script.sh"
         : "",
       this.config.preRunnerScript
         ? `source $CURRENT_PATH/pre-runner-script.sh`
