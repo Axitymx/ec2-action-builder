@@ -23,7 +23,6 @@ export class UserData {
 
     const cmds = [
       "#!/bin/bash",
-      "sudo amazon-linux-extras install epel -y",
       "sudo yum install docker git libicu -y",
       "sudo systemctl enable docker",
       "sudo systemctl start docker",
