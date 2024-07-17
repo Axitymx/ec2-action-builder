@@ -26,6 +26,7 @@ export class UserData {
       "yum install git -y",
       "sudo yum install docker git libicu -y",
       "sudo systemctl enable docker",
+      "sudo systemctl start docker",
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
       this.config.preRunnerScript
