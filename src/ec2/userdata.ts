@@ -23,6 +23,7 @@ export class UserData {
 
     const cmds = [
       "#!/bin/bash",
+      `yum install git -y`,
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
       this.config.preRunnerScript
