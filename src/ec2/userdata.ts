@@ -23,9 +23,6 @@ export class UserData {
 
     const cmds = [
       "#!/bin/bash",
-      "sudo yum install docker git libicu -y",
-      "sudo systemctl enable docker",
-      "sudo systemctl start docker",
       `shutdown -P +${this.config.ec2InstanceTtl}`,
       "CURRENT_PATH=$(pwd)",
       this.config.preRunnerScript
@@ -48,7 +45,7 @@ export class UserData {
       "tar xzf ./actions-runner-linux-${RUNNER_ARCH}-${GH_RUNNER_VERSION}.tar.gz",
       "export RUNNER_ALLOW_RUNASROOT=1",
       `RUNNER_NAME=${this.config.githubJobId}-$(hostname)-ec2`,
-      '[ -n "$(command -v yum)" ] && yum install libicu -y',
+      // '[ -n "$(command -v yum)" ] && yum install libicu -y',
       `./config.sh --unattended ${
         this.config.manualStop ? "" : "--ephemeral"
       } --url https://github.com/${github.context.repo.owner}/${
