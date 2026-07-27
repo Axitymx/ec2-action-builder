@@ -1,8 +1,11 @@
 import { expect } from 'chai';
 import { GithubClient } from '../../src/github/github';
 import { ActionConfig } from '../../src/config/config';
+import { runExternalIntegrationTests } from '../setup';
 
-describe('Github API tests', () => {
+const describeIfIntegration = runExternalIntegrationTests ? describe : describe.skip;
+
+describeIfIntegration('Github API tests', () => {
     const config = new ActionConfig()
     const githubClient = new GithubClient(config);
 
